@@ -1,28 +1,24 @@
-use std::{fs, path::Path};
+mod parse;
+use parse::parse;
+use std::path::Path;
 
 pub struct Besida {
+    name: String,
     pub dialogue_nodes: Vec<DialogueNode>,
 }
 
 #[derive(Debug)]
 pub struct DialogueNode {
-    name: String,
+    speaker: String,
     speech: String,
-}
-
-fn parse(file_path: &Path) -> Vec<DialogueNode> {
-    let contents = fs::read_to_string(file_path).expect("should've read the file");
-    println!("{contents}");
-    vec![DialogueNode {
-        name: "You".into(),
-        speech: "First line".into(),
-    }]
 }
 
 impl Besida {
     pub fn new(dialogue_file_path: &Path) -> Self {
+        let (name, dialogue_nodes) = parse(dialogue_file_path);
         Self {
-            dialogue_nodes: parse(dialogue_file_path),
+            name,
+            dialogue_nodes,
         }
     }
 }
