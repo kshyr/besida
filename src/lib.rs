@@ -28,7 +28,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
+    fn besida_init() {
         let dialogue_path = Path::new("examples/basic.bsd");
         let besida = Besida::new(dialogue_path);
         println!("{:?}", besida.dialogue_nodes);
