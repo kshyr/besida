@@ -1,0 +1,13 @@
+--- Intro dialogue ---
+
+You:
+  It's a first line.
+
+Other person:
+  It's a second line.
+
+You:
+  It's___ a___ slow___ and___ paused___ line___...
+
+Other person:
+  It's a line that prints out "Hi" to console (printHi)
