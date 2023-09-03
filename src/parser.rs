@@ -41,6 +41,7 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
     let events = parse_text_to_events(text);
     let node = DialogueNode {
         speaker: speaker.into(),
+        speech: text.into(),
         events,
         curr_event_idx: 0,
     };
@@ -81,12 +82,5 @@ mod tests {
         let name = dialogue_name("--- Intro dialogue ---").unwrap().1;
 
         assert_eq!("Intro dialogue", name);
-    }
-
-    #[test]
-    fn dialogue_node_parsing() {
-        let input = "You:
-  This line prints 'Hi' to console at the end. [printHi]
-";
     }
 }

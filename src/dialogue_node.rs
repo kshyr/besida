@@ -10,6 +10,7 @@ pub enum Event {
 #[derive(Debug, Clone)]
 pub struct DialogueNode {
     pub speaker: String,
+    pub speech: String,
     pub events: Vec<Event>,
 
     pub curr_event_idx: usize,
@@ -37,6 +38,7 @@ impl Default for DialogueNode {
     fn default() -> Self {
         DialogueNode {
             speaker: "You".into(),
+            speech: "Hello".into(),
             events: vec![
                 Event::PrintChar('H'),
                 Event::PrintChar('e'),
