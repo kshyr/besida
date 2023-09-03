@@ -8,7 +8,7 @@ Your text file - let's call it `the_part_where_he_kills_you.txt`:
 --- Chapter 9 Transition ---
 
 GLaDOS:
-     Well, this is the part where he kills us.
+    Well, this is the part where he kills us.
 
 Wheatly:
     Hello! This is the part where I kill you!
