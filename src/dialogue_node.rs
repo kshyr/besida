@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Event {
     PrintChar(char),
     Pause,
@@ -7,7 +7,7 @@ pub enum Event {
     Action(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DialogueNode {
     pub speaker: String,
     pub events: Vec<Event>,
@@ -28,8 +28,8 @@ impl DialogueNode {
         self.curr_event_idx += 1;
     }
 
-    pub fn get_event(&self) -> &Event {
-        &self.events[self.curr_event_idx]
+    pub fn get_event(&self) -> Event {
+        self.events[self.curr_event_idx].clone()
     }
 }
 
@@ -60,7 +60,7 @@ mod tests {
         assert_eq!(dialogue_node.curr_event_idx, 0);
         let event = dialogue_node.get_event();
         let char = match event {
-            Event::PrintChar(c) => *c,
+            Event::PrintChar(c) => c,
             _ => 'c',
         };
         assert_eq!(char, 'H');
@@ -70,7 +70,7 @@ mod tests {
         assert_eq!(dialogue_node.curr_event_idx, 1);
         let event = dialogue_node.get_event();
         let char = match event {
-            Event::PrintChar(c) => *c,
+            Event::PrintChar(c) => c,
             _ => 'c',
         };
         assert_eq!(char, 'e');

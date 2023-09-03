@@ -34,8 +34,8 @@ impl Besida {
         self.curr_node_idx += 1;
     }
 
-    pub fn get_node(&self) -> &DialogueNode {
-        &self.dialogue_nodes[self.curr_node_offset]
+    pub fn get_node(&self) -> DialogueNode {
+        self.dialogue_nodes[self.curr_node_offset].clone()
     }
 }
 
