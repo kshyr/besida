@@ -32,8 +32,8 @@ impl Besida {
         self.curr_node_idx += 1;
     }
 
-    pub fn get_node(&self) -> DialogueNode {
-        self.dialogue_nodes[self.curr_node_idx].clone()
+    pub fn get_node(&mut self) -> &mut DialogueNode {
+        &mut self.dialogue_nodes[self.curr_node_idx]
     }
 }
 
