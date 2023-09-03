@@ -7,8 +7,7 @@ pub struct Besida {
     pub name: String,
     pub dialogue_nodes: Vec<DialogueNode>,
 
-    curr_node_idx: usize,
-    curr_node_offset: usize,
+    pub curr_node_idx: usize,
 }
 
 impl Besida {
@@ -18,7 +17,6 @@ impl Besida {
             name,
             dialogue_nodes,
             curr_node_idx: 0,
-            curr_node_offset: 0,
         }
     }
 
@@ -35,7 +33,7 @@ impl Besida {
     }
 
     pub fn get_node(&self) -> DialogueNode {
-        self.dialogue_nodes[self.curr_node_offset].clone()
+        self.dialogue_nodes[self.curr_node_idx].clone()
     }
 }
 
