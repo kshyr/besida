@@ -1,14 +1,10 @@
 #[derive(Debug)]
-pub enum EventType {
-    PrintChar,
-    SpeedChange,
-    EmotionChange,
-}
-
-#[derive(Debug)]
-pub struct Event {
-    pub event_type: EventType,
-    pub char: Option<char>,
+pub enum Event {
+    PrintChar(char),
+    Pause,
+    SpeedChange(f32),
+    EmotionChange(String),
+    Action(String),
 }
 
 #[derive(Debug)]
@@ -42,26 +38,11 @@ impl Default for DialogueNode {
         DialogueNode {
             speaker: "You".into(),
             events: vec![
-                Event {
-                    event_type: EventType::PrintChar,
-                    char: Some('H'),
-                },
-                Event {
-                    event_type: EventType::PrintChar,
-                    char: Some('e'),
-                },
-                Event {
-                    event_type: EventType::PrintChar,
-                    char: Some('l'),
-                },
-                Event {
-                    event_type: EventType::PrintChar,
-                    char: Some('l'),
-                },
-                Event {
-                    event_type: EventType::PrintChar,
-                    char: Some('o'),
-                },
+                Event::PrintChar('H'),
+                Event::PrintChar('e'),
+                Event::PrintChar('l'),
+                Event::PrintChar('l'),
+                Event::PrintChar('o'),
             ],
             curr_event_idx: 0,
         }
@@ -78,12 +59,20 @@ mod tests {
 
         assert_eq!(dialogue_node.curr_event_idx, 0);
         let event = dialogue_node.get_event();
-        assert_eq!(event.char, Some('H'));
+        let char = match event {
+            Event::PrintChar(c) => *c,
+            _ => 'c',
+        };
+        assert_eq!(char, 'H');
 
         dialogue_node.next_event();
 
         assert_eq!(dialogue_node.curr_event_idx, 1);
         let event = dialogue_node.get_event();
-        assert_eq!(event.char, Some('e'));
+        let char = match event {
+            Event::PrintChar(c) => *c,
+            _ => 'c',
+        };
+        assert_eq!(char, 'e');
     }
 }

@@ -2,6 +2,7 @@ use crate::dialogue_node::DialogueNode;
 use crate::parser::parse;
 use std::path::Path;
 
+#[derive(Debug)]
 pub struct Besida {
     pub name: String,
     pub dialogue_nodes: Vec<DialogueNode>,
@@ -33,7 +34,7 @@ impl Besida {
         self.curr_node_idx += 1;
     }
 
-    pub fn get_curr_node(&self) -> &DialogueNode {
+    pub fn get_node(&self) -> &DialogueNode {
         &self.dialogue_nodes[self.curr_node_offset]
     }
 }
@@ -46,7 +47,6 @@ mod tests {
     #[test]
     fn besida_init() {
         let dialogue_path = Path::new("examples/basic.besida");
-        let besida = Besida::new(dialogue_path);
-        println!("{:?}", besida.dialogue_nodes);
+        Besida::new(dialogue_path);
     }
 }
