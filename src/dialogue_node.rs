@@ -11,26 +11,30 @@ pub enum Event {
 pub struct DialogueNode {
     pub speaker: String,
     pub speech: String,
-    pub events: Vec<Event>,
+    pub(super) events: Vec<Event>,
 
-    pub curr_event_idx: usize,
+    pub(super) curr_event_idx: usize,
 }
 
 impl DialogueNode {
-    pub fn has_next_event(&self) -> bool {
-        self.events.get(self.curr_event_idx + 1).is_some()
-    }
-
     pub fn next_event(&mut self) {
-        if !self.has_next_event() {
-            panic!("Out of bounds: there are no events left in current node.")
-        }
-
         self.curr_event_idx += 1;
     }
 
-    pub fn get_event(&mut self) -> &mut Event {
-        &mut self.events[self.curr_event_idx]
+    pub fn prev_event(&mut self) {
+        self.curr_event_idx -= 1;
+    }
+
+    pub fn set_event_index(&mut self, index: usize) {
+        self.curr_event_idx = index;
+    }
+
+    pub fn get_event(&self) -> Option<&Event> {
+        self.events.get(self.curr_event_idx)
+    }
+
+    pub fn get_event_mut(&mut self) -> Option<&mut Event> {
+        self.events.get_mut(self.curr_event_idx)
     }
 }
 
@@ -60,21 +64,22 @@ mod tests {
         let mut dialogue_node = DialogueNode::default();
 
         assert_eq!(dialogue_node.curr_event_idx, 0);
-        let event = dialogue_node.get_event();
-        let char = match event {
-            Event::PrintChar(c) => *c,
-            _ => 'c',
-        };
-        assert_eq!(char, 'H');
-
+        if let Some(event) = dialogue_node.get_event() {
+            let char = match event {
+                Event::PrintChar(c) => *c,
+                _ => 'c',
+            };
+            assert_eq!(char, 'H');
+        }
         dialogue_node.next_event();
 
         assert_eq!(dialogue_node.curr_event_idx, 1);
-        let event = dialogue_node.get_event();
-        let char = match event {
-            Event::PrintChar(c) => *c,
-            _ => 'c',
-        };
-        assert_eq!(char, 'e');
+        if let Some(event) = dialogue_node.get_event() {
+            let char = match event {
+                Event::PrintChar(c) => *c,
+                _ => 'c',
+            };
+            assert_eq!(char, 'e');
+        }
     }
 }

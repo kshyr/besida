@@ -5,9 +5,9 @@ use std::path::Path;
 #[derive(Debug)]
 pub struct Besida {
     pub name: String,
-    pub dialogue_nodes: Vec<DialogueNode>,
+    pub(super) dialogue_nodes: Vec<DialogueNode>,
 
-    pub curr_node_idx: usize,
+    curr_node_idx: usize,
 }
 
 impl Besida {
@@ -20,20 +20,24 @@ impl Besida {
         }
     }
 
-    pub fn has_next_node(&self) -> bool {
-        self.dialogue_nodes.get(self.curr_node_idx + 1).is_some()
-    }
-
     pub fn next_node(&mut self) {
-        if !self.has_next_node() {
-            panic!("Out of bounds: there are no nodes left to read from.")
-        }
-
         self.curr_node_idx += 1;
     }
 
-    pub fn get_node(&mut self) -> &mut DialogueNode {
-        &mut self.dialogue_nodes[self.curr_node_idx]
+    pub fn prev_node(&mut self) {
+        self.curr_node_idx -= 1;
+    }
+
+    pub fn set_node_index(&mut self, index: usize) {
+        self.curr_node_idx = index;
+    }
+
+    pub fn get_node(&self) -> Option<&DialogueNode> {
+        self.dialogue_nodes.get(self.curr_node_idx)
+    }
+
+    pub fn get_node_mut(&mut self) -> Option<&mut DialogueNode> {
+        self.dialogue_nodes.get_mut(self.curr_node_idx)
     }
 }
 
@@ -43,8 +47,10 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn besida_init() {
+    fn mut_node() {
         let dialogue_path = Path::new("examples/basic.besida");
-        Besida::new(dialogue_path);
+        let mut besida = Besida::new(dialogue_path);
+        let node = besida.get_node_mut();
+        node.unwrap().next_event();
     }
 }
