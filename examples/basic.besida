@@ -1,0 +1,15 @@
+--- Intro dialogue ---
+
+You:
+  It's a first line.
+
+Other person:
+  It's a second line.
+
+You:
+  It's___ a___ slow___ and___ paused___ line___...
+
+Other person (happy):
+  It's a happy sentence that prints out "Hello" to console [printHello]
+  and then prints out "World". [printWorld]
+

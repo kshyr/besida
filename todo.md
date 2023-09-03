@@ -1,0 +1,2 @@
+- "unskippable" flag on a node
+- merge pause sequence into one event

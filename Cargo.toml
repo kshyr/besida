@@ -1,6 +1,6 @@
 [package]
 name = "besida"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license-file = "LICENSE"
 description = "Language for defining branching dialogue"
@@ -8,3 +8,4 @@ description = "Language for defining branching dialogue"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+nom = "7.1.3"
