@@ -27,6 +27,7 @@ fn dialogue_name(input: &str) -> IResult<&str, &str> {
 }
 
 fn dialogue_nodes(input: &str) -> IResult<&str, Vec<DialogueNode>> {
+    let (input, _) = many1(newline)(input)?;
     let (input, nodes) = many1(dialogue_node)(input)?;
     Ok((input, nodes))
 }
