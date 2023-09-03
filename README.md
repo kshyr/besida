@@ -50,6 +50,7 @@ Somewhere in loop:
     node.next_event();
 }
 ```
+---
 ### **Implementation**:
 - **Besida**: struct that is initiated with path to dialogue file ([example](https://github.com/kshyr/besida/blob/dev/examples/basic.besida)) and parses it to **dialogue nodes**
 - **Dialogue node**: holds speaker name and their speech (in form of **events** and in form of plain text)
