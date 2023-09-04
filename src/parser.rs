@@ -53,7 +53,9 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
 fn parse_text_to_events(text: &str) -> Vec<Event> {
     let mut events = Vec::new();
     let mut action_buffer = String::new();
+    let mut pause_amount = 0;
     let mut is_in_action = false;
+    let mut is_in_pause = false;
 
     for c in text.chars() {
         if c == '[' {
@@ -65,8 +67,15 @@ fn parse_text_to_events(text: &str) -> Vec<Event> {
         } else if is_in_action {
             action_buffer.push(c);
         } else if c == '_' {
-            events.push(Event::Pause);
+            is_in_pause = true;
+            pause_amount += 1;
         } else {
+            if is_in_pause {
+                events.push(Event::Pause(pause_amount));
+                is_in_pause = false;
+                pause_amount = 0;
+            }
+
             events.push(Event::PrintChar(c));
         }
     }

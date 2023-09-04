@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub enum Event {
     PrintChar(char),
-    Pause,
+    Pause(usize),
     SpeedChange(f32),
     EmotionChange(String),
     Action(String),
