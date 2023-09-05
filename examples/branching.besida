@@ -1,0 +1,32 @@
+--- Branching dialogue ---
+
+Man:
+    You don't look like you're from around here.
+
+You:
+    > I've lived here all my life!
+        
+        # mr_bowler_branch
+        Man: 
+            Oh really? Then you must know Mr. Bowler.
+
+        You:
+            > Mr. Bowler is a good friend of mine!
+
+                Man:
+                    You liar! There ain't no Mr. Bowler, I made him up!
+                
+            > Who?
+
+                Man:
+                    Don't you worry about it. Say, do you have something to eat? I'm starving.
+
+
+    > I came here from Newton.
+ 
+        Man:
+            Newton, eh? I heard there's trouble brewing down there.
+
+        You: 
+            > Did I say Newton? I'm actually from Springville. [jump mr_bowler_branch]
+

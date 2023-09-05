@@ -40,6 +40,7 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
     let (input, _) = many0(newline)(input)?;
 
     let events = parse_text_to_events(text);
+
     let node = DialogueNode {
         speaker: speaker.into(),
         speech: text.into(),
@@ -58,25 +59,34 @@ fn parse_text_to_events(text: &str) -> Vec<Event> {
     let mut is_in_pause = false;
 
     for c in text.chars() {
-        if c == '[' {
-            is_in_action = true;
-            action_buffer.clear();
-        } else if c == ']' && is_in_action {
-            is_in_action = false;
-            events.push(Event::Action(action_buffer.clone()));
-        } else if is_in_action {
-            action_buffer.push(c);
-        } else if c == '_' {
-            is_in_pause = true;
-            pause_amount += 1;
-        } else {
-            if is_in_pause {
-                events.push(Event::Pause(pause_amount));
-                is_in_pause = false;
-                pause_amount = 0;
+        match c {
+            '[' => {
+                is_in_action = true;
+                action_buffer.clear();
+            }
+            ']' if is_in_action => {
+                is_in_action = false;
+                events.push(Event::Action(action_buffer.clone()));
             }
 
-            events.push(Event::PrintChar(c));
+            '_' => {
+                is_in_pause = true;
+                pause_amount += 1;
+            }
+            _ => {
+                if is_in_pause {
+                    events.push(Event::Pause(pause_amount));
+                    is_in_pause = false;
+                    pause_amount = 0;
+                }
+
+                if is_in_action {
+                    action_buffer.push(c);
+                    continue;
+                }
+
+                events.push(Event::PrintChar(c));
+            }
         }
     }
 
@@ -92,5 +102,25 @@ mod tests {
         let name = dialogue_name("--- Intro dialogue ---").unwrap().1;
 
         assert_eq!("Intro dialogue", name);
+    }
+
+    #[test]
+    fn text_to_events_parsing() {
+        let str = "3 Pause___[action]";
+
+        assert_eq!(
+            parse_text_to_events(str),
+            vec![
+                Event::PrintChar('3'),
+                Event::PrintChar(' '),
+                Event::PrintChar('P'),
+                Event::PrintChar('a'),
+                Event::PrintChar('u'),
+                Event::PrintChar('s'),
+                Event::PrintChar('e'),
+                Event::Pause(3),
+                Event::Action("action".to_string())
+            ]
+        );
     }
 }
