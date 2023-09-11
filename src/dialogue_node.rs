@@ -2,18 +2,25 @@
 pub enum Event {
     PrintChar(char),
     Pause(usize),
-    SpeedChange(f32),
-    EmotionChange(String),
     Action(String),
+    Choice(ChoiceOption),
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ChoiceOption {
+    pub text: String,
+    pub action: Option<String>,
+    pub(super) jump_dest: Option<String>,
 }
 
 #[derive(Debug)]
 pub struct DialogueNode {
     pub speaker: String,
     pub speech: String,
-    pub(super) events: Vec<Event>,
 
+    pub(super) events: Vec<Event>,
     pub(super) curr_event_idx: usize,
+    pub(super) jump_dest: Option<String>,
 }
 
 impl DialogueNode {
@@ -51,6 +58,7 @@ impl Default for DialogueNode {
                 Event::PrintChar('o'),
             ],
             curr_event_idx: 0,
+            jump_dest: None,
         }
     }
 }
@@ -67,7 +75,7 @@ mod tests {
         if let Some(event) = dialogue_node.get_event() {
             let char = match event {
                 Event::PrintChar(c) => *c,
-                _ => 'c',
+                _ => todo!(),
             };
             assert_eq!(char, 'H');
         }
@@ -77,7 +85,7 @@ mod tests {
         if let Some(event) = dialogue_node.get_event() {
             let char = match event {
                 Event::PrintChar(c) => *c,
-                _ => 'c',
+                _ => todo!(),
             };
             assert_eq!(char, 'e');
         }

@@ -29,6 +29,7 @@ fn dialogue_name(input: &str) -> IResult<&str, &str> {
 fn dialogue_nodes(input: &str) -> IResult<&str, Vec<DialogueNode>> {
     let (input, _) = many1(newline)(input)?;
     let (input, nodes) = many1(dialogue_node)(input)?;
+
     Ok((input, nodes))
 }
 
@@ -40,12 +41,14 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
     let (input, _) = many0(newline)(input)?;
 
     let events = parse_text_to_events(text);
+    let jump_dest = None;
 
     let node = DialogueNode {
         speaker: speaker.into(),
         speech: text.into(),
         events,
         curr_event_idx: 0,
+        jump_dest,
     };
 
     Ok((input, node))
@@ -64,6 +67,7 @@ fn parse_text_to_events(text: &str) -> Vec<Event> {
                 is_in_action = true;
                 action_buffer.clear();
             }
+
             ']' if is_in_action => {
                 is_in_action = false;
                 events.push(Event::Action(action_buffer.clone()));
@@ -73,6 +77,7 @@ fn parse_text_to_events(text: &str) -> Vec<Event> {
                 is_in_pause = true;
                 pause_amount += 1;
             }
+
             _ => {
                 if is_in_pause {
                     events.push(Event::Pause(pause_amount));

@@ -51,8 +51,9 @@ mod tests {
 
     #[test]
     fn mut_node() {
-        let dialogue_path = Path::new("examples/basic.besida");
+        let dialogue_path = Path::new("examples/recursion.besida");
         let mut besida = Besida::new(dialogue_path);
+        println!("{:?}", besida.dialogue_nodes);
         let node = besida.get_node_mut();
         node.unwrap().next_event();
     }
