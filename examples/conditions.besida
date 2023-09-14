@@ -1,0 +1,16 @@
+--- Branching dialogue with conditions and actions ---
+
+Man:
+    Hey, I can offer you a limited deal - 10 arrows for 5 gold. Do you want to take it?
+
+You:
+    if enough_gold > Sure!
+
+        Man:
+            Alright, here you go!
+            [add_arrows_to_inv]
+
+    > No, thank you.
+        
+        Man:
+            The choice is yours.

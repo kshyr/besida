@@ -43,6 +43,10 @@ impl DialogueNode {
     pub fn get_event_mut(&mut self) -> Option<&mut Event> {
         self.events.get_mut(self.curr_event_idx)
     }
+
+    pub fn is_finished(self) -> bool {
+        self.curr_event_idx == self.events.len() - 1
+    }
 }
 
 impl Default for DialogueNode {
