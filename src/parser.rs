@@ -46,14 +46,13 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
     let (input, _) = many0(newline)(input)?;
 
     let (input, events) = events(input)?;
-    let jump_dest = None;
 
     let node = DialogueNode {
         speaker: speaker.into(),
         speech: text.into(),
         events,
         curr_event_idx: 0,
-        jump_dest,
+        jump_dest: None,
     };
 
     Ok((input, node))
