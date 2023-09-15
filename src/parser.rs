@@ -11,7 +11,8 @@ use nom::{
     IResult,
 };
 
-use crate::dialogue_node::{DialogueNode, Event};
+use crate::dialogue_node::DialogueNode;
+use crate::event::Event;
 
 pub fn parse(file_path: &Path) -> (String, Vec<DialogueNode>) {
     let contents = fs::read_to_string(file_path).expect("should've read the file");
@@ -97,6 +98,8 @@ fn action_event(input: &str) -> IResult<&str, Event> {
 
 #[cfg(test)]
 mod tests {
+    use crate::event::Event;
+
     use super::*;
 
     #[test]
