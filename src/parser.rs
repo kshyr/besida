@@ -2,55 +2,90 @@ use std::{fs, path::Path};
 
 use nom::branch::alt;
 use nom::bytes::complete::take_till;
-use nom::character::complete::{anychar, line_ending, one_of};
-use nom::combinator::opt;
+use nom::character::complete::{char, one_of};
+use nom::combinator::{not, opt};
 use nom::{
     bytes::complete::{tag, take_until},
     character::complete::{multispace0, newline},
-    multi::{many0, many1},
+    multi::many0,
     IResult,
 };
 
+use crate::branch::Branch;
 use crate::dialogue_node::DialogueNode;
 use crate::event::Event;
 
-pub fn parse(file_path: &Path) -> (String, Vec<DialogueNode>) {
+pub fn parse(file_path: &Path) -> Vec<Branch> {
     let contents = fs::read_to_string(file_path).expect("should've read the file");
     let input = contents.as_str();
 
-    let (input, name) = dialogue_name(input).unwrap();
-    let (_, nodes) = dialogue_nodes(input).unwrap();
+    let (_, branches) = branches(input).unwrap();
 
-    (name.into(), nodes)
+    branches
 }
 
-fn dialogue_name(input: &str) -> IResult<&str, &str> {
+fn branches(input: &str) -> IResult<&str, Vec<Branch>> {
+    let (input, branches) = many0(branch)(input)?;
+
+    Ok((input, branches))
+}
+
+fn branch(input: &str) -> IResult<&str, Branch> {
+    let (input, is_entry) = entry_branch_tag(input)?;
+    let (input, name) = branch_name(input)?;
+    let (input, nodes) = dialogue_nodes(input)?;
     let (input, _) = multispace0(input)?;
+
+    let branch = Branch {
+        name,
+        is_entry,
+        nodes,
+    };
+
+    Ok((input, branch))
+}
+
+fn entry_branch_tag(input: &str) -> IResult<&str, bool> {
+    let (input, is_entry_option) = opt(tag("!"))(input)?;
+
+    let is_entry = is_entry_option.is_some();
+    Ok((input, is_entry))
+}
+
+fn branch_name(input: &str) -> IResult<&str, String> {
     let (input, _) = tag("--- ")(input)?;
-    let (input, c) = take_until(" ---")(input)?;
+    let (input, name) = take_until(" ---")(input)?;
     let (input, _) = tag(" ---")(input)?;
-    Ok((input, c))
+
+    Ok((input, name.to_string()))
 }
 
 fn dialogue_nodes(input: &str) -> IResult<&str, Vec<DialogueNode>> {
-    let (input, _) = many1(newline)(input)?;
     let (input, nodes) = many0(dialogue_node)(input)?;
 
     Ok((input, nodes))
 }
 
 fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
+    let (input, _) = multispace0(input)?;
+    let (input, _) = not(char('-'))(input)?;
     let (input, speaker) = take_until(":")(input)?;
     let (input, _) = tag(":")(input)?;
     let (input, _) = multispace0(input)?;
-    let (input, text) = take_until("\n\n")(input)?;
-    let (input, _) = many0(newline)(input)?;
-
     let (input, events) = events(input)?;
+    let (input, _) = multispace0(input)?;
+
+    let speech: String = events
+        .iter()
+        .filter_map(|event| match event {
+            Event::PrintChar(c) => Some(c),
+            _ => None,
+        })
+        .collect();
 
     let node = DialogueNode {
-        speaker: speaker.into(),
-        speech: text.into(),
+        speaker: speaker.to_string(),
+        speech,
         events,
         curr_event_idx: 0,
         jump_dest: None,
@@ -62,18 +97,19 @@ fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
 fn events(input: &str) -> IResult<&str, Vec<Event>> {
     let (input, _) = multispace0(input)?;
     let (input, event_list) = many0(event)(input)?;
-    let (input, _) = opt(line_ending)(input)?;
 
     Ok((input, event_list))
 }
 
 fn event(input: &str) -> IResult<&str, Event> {
+    let (input, _) = opt(newline)(input)?;
     let (input, event) = alt((action_event, pause_event, print_char_event))(input)?;
     Ok((input, event))
 }
 
 fn print_char_event(input: &str) -> IResult<&str, Event> {
-    let (input, char) = alt((anychar, one_of(".!")))(input)?;
+    let (input, char) =
+        one_of("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.!'\" ")(input)?;
     let event = Event::PrintChar(char);
     Ok((input, event))
 }
@@ -98,57 +134,103 @@ fn action_event(input: &str) -> IResult<&str, Event> {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     use crate::event::Event;
+    use crate::event::Event::PrintChar;
 
     use super::*;
 
-    #[test]
-    fn dialogue_name_parsing() {
-        let name = dialogue_name("--- Intro dialogue ---").unwrap().1;
+    fn nom_parsing_test<F, E>(parser_fn: F, input: &str, expected_output: E)
+    where
+        F: Fn(&str) -> IResult<&str, E>,
+        E: PartialEq + Debug,
+    {
+        let (input, output) = parser_fn(input).unwrap();
+        assert_eq!(input, "");
+        assert_eq!(output, expected_output);
+    }
 
-        assert_eq!("Intro dialogue", name);
+    #[test]
+    fn entry_branch_tag_parsing() {
+        let input = "!";
+        let expected = true;
+        nom_parsing_test(entry_branch_tag, input, expected);
+    }
+
+    #[test]
+    fn branch_name_parsing() {
+        let input = "--- Name ---";
+        let expected = "Name".to_string();
+        nom_parsing_test(branch_name, input, expected);
     }
 
     #[test]
     fn print_char_event_parsing() {
         let input = ".";
-        let (input, char_event) = print_char_event(input).unwrap();
-        assert_eq!(input, "");
-        assert_eq!(char_event, Event::PrintChar('.'));
+        let expected = Event::PrintChar('.');
+        nom_parsing_test(print_char_event, input, expected);
     }
 
     #[test]
     fn pause_event_parsing() {
-        let input = "___!";
-        let (input, pause_event) = pause_event(input).unwrap();
-        assert_eq!(input, "!");
-        assert_eq!(pause_event, Event::Pause(3));
+        let input = "___";
+        let expected = Event::Pause(3);
+        nom_parsing_test(pause_event, input, expected);
     }
 
     #[test]
     fn action_event_parsing() {
         let input = "[action_name]";
-        let (input, action_event) = action_event(input).unwrap();
-        assert_eq!(input, "");
-        assert_eq!(action_event, Event::Action("action_name".to_string()));
+        let expected = Event::Action("action_name".to_string());
+        nom_parsing_test(action_event, input, expected);
     }
 
     #[test]
     fn events_parsing() {
         let input = "Oh...___[surprised]";
-        let (_, events) = events(input).unwrap();
-        assert_eq!(
-            events,
-            vec![
-                Event::PrintChar('O'),
-                Event::PrintChar('h'),
-                Event::PrintChar('.'),
-                Event::PrintChar('.'),
-                Event::PrintChar('.'),
-                Event::Pause(3),
-                Event::Action("surprised".to_string())
-            ]
-        );
+        let expected = vec![
+            Event::PrintChar('O'),
+            Event::PrintChar('h'),
+            Event::PrintChar('.'),
+            Event::PrintChar('.'),
+            Event::PrintChar('.'),
+            Event::Pause(3),
+            Event::Action("surprised".to_string()),
+        ];
+        nom_parsing_test(events, input, expected);
+    }
+
+    #[test]
+    fn nodes_parsing() {
+        let input = "You:\nHey.\n\nMan:\nHey.";
+        let expected = vec![
+            DialogueNode {
+                speaker: "You".to_string(),
+                speech: "Hey.".to_string(),
+                events: vec![
+                    PrintChar('H'),
+                    PrintChar('e'),
+                    PrintChar('y'),
+                    PrintChar('.'),
+                ],
+                curr_event_idx: 0,
+                jump_dest: None,
+            },
+            DialogueNode {
+                speaker: "Man".to_string(),
+                speech: "Hey.".to_string(),
+                events: vec![
+                    PrintChar('H'),
+                    PrintChar('e'),
+                    PrintChar('y'),
+                    PrintChar('.'),
+                ],
+                curr_event_idx: 0,
+                jump_dest: None,
+            },
+        ];
+        nom_parsing_test(dialogue_nodes, input, expected);
     }
 
     #[test]

@@ -1,6 +1,6 @@
 use crate::event::Event;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DialogueNode {
     pub speaker: String,
     pub speech: String,

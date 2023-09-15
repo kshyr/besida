@@ -1,4 +1,4 @@
---- Intro dialogue ---
+!--- Intro dialogue ---
 
 You:
   It's a first line.
@@ -12,4 +12,10 @@ You:
 Other person (happy):
   It's a happy sentence that prints out "Hello" to console [printHello]
   and then prints out "World". [printWorld]
+
+--- Branch ---
+
+You:
+    Hey
+
 

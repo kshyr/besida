@@ -1,21 +1,23 @@
+use std::path::Path;
+
+use crate::branch::Branch;
 use crate::dialogue_node::DialogueNode;
 use crate::parser::parse;
-use std::path::Path;
 
 #[derive(Debug)]
 pub struct Besida {
-    pub name: String,
-    dialogue_nodes: Vec<DialogueNode>,
+    branches: Vec<Branch>,
+    pub(crate) dialogue_nodes: Vec<DialogueNode>,
 
     curr_node_idx: usize,
 }
 
 impl Besida {
     pub fn new(dialogue_file_path: &Path) -> Self {
-        let (name, dialogue_nodes) = parse(dialogue_file_path);
+        let branches = parse(dialogue_file_path);
         Self {
-            name,
-            dialogue_nodes,
+            branches,
+            dialogue_nodes: vec![],
             curr_node_idx: 0,
         }
     }
@@ -51,7 +53,14 @@ mod tests {
     fn mut_node() {
         let dialogue_path = Path::new("examples/basic.besida");
         let mut besida = Besida::new(dialogue_path);
-        let node = besida.get_node_mut();
-        node.unwrap().next_event();
+        println!("Branches Count: {:?}", besida.branches.iter().count());
+        besida.branches.iter().for_each(|branch| {
+            println!("--- {:?} ---", branch.name);
+            branch.nodes.iter().for_each(|node| {
+                println!("{}: {}", node.speaker, node.speech);
+            })
+        });
+        //let node = besida.get_node_mut();
+        //node.unwrap().next_event();
     }
 }
