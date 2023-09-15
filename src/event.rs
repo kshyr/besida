@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Event {
     PrintChar(char),
     Pause(usize),
@@ -6,7 +6,7 @@ pub enum Event {
     Choice(ChoiceOption),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChoiceOption {
     pub text: String,
     pub action: Option<String>,

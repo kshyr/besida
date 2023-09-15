@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use nom::branch::alt;
 use nom::bytes::complete::take_till;
-use nom::character::complete::{char, one_of};
+use nom::character::complete::one_of;
 use nom::combinator::{not, opt};
 use nom::{
     bytes::complete::{tag, take_until},
@@ -68,7 +68,7 @@ fn dialogue_nodes(input: &str) -> IResult<&str, Vec<DialogueNode>> {
 
 fn dialogue_node(input: &str) -> IResult<&str, DialogueNode> {
     let (input, _) = multispace0(input)?;
-    let (input, _) = not(char('-'))(input)?;
+    let (input, _) = not(alt((tag("---"), tag("!---"))))(input)?;
     let (input, speaker) = take_until(":")(input)?;
     let (input, _) = tag(":")(input)?;
     let (input, _) = multispace0(input)?;

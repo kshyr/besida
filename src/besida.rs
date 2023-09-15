@@ -15,9 +15,26 @@ pub struct Besida {
 impl Besida {
     pub fn new(dialogue_file_path: &Path) -> Self {
         let branches = parse(dialogue_file_path);
+
+        // consider first branch an entry, if there are no entry tags
+        let entry_branches: Vec<Branch> =
+            branches.iter().filter(|br| br.is_entry).cloned().collect();
+
+        let mut entry_branch: Branch;
+
+        if entry_branches.len() > 1 {
+            panic!("Multiple entry points found. Remove \"!\" from other branch definitions.");
+        } else if entry_branches.len() == 0 {
+            entry_branch = branches.first().expect("No branches were found.").clone();
+        } else {
+            entry_branch = entry_branches.first().cloned().unwrap();
+        }
+
+        let dialogue_nodes = entry_branch.nodes.clone();
+
         Self {
             branches,
-            dialogue_nodes: vec![],
+            dialogue_nodes,
             curr_node_idx: 0,
         }
     }
@@ -49,17 +66,23 @@ mod tests {
 
     use crate::Besida;
 
-    #[test]
-    fn mut_node() {
-        let dialogue_path = Path::new("examples/basic.besida");
-        let mut besida = Besida::new(dialogue_path);
-        println!("Branches Count: {:?}", besida.branches.iter().count());
+    fn display_dialogue(besida: &Besida) {
+        println!("\n");
         besida.branches.iter().for_each(|branch| {
             println!("--- {:?} ---", branch.name);
             branch.nodes.iter().for_each(|node| {
                 println!("{}: {}", node.speaker, node.speech);
             })
         });
+        println!("\n");
+    }
+
+    #[test]
+    fn mut_node() {
+        let dialogue_path = Path::new("examples/basic.besida");
+        let besida = Besida::new(dialogue_path);
+        println!("Branches Count: {:?}", besida.branches.iter().count());
+        display_dialogue(&besida);
         //let node = besida.get_node_mut();
         //node.unwrap().next_event();
     }
