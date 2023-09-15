@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn mut_node() {
-        let dialogue_path = Path::new("examples/branching.besida");
+        let dialogue_path = Path::new("examples/basic.besida");
         let mut besida = Besida::new(dialogue_path);
         let node = besida.get_node_mut();
         node.unwrap().next_event();
